@@ -28,6 +28,9 @@ import os
 import PIL.Image
 import shutil
 
+class config:
+    TAKE_SIMILARITY_FACTOR = 5
+
 # Returns global paths to all *.jpg files in directory
 def get_jpegs(path):
     return glob.iglob(path + '/**/*.jpg', recursive=True)
@@ -108,9 +111,14 @@ def get_imagehash(pic):
     try:
         img = PIL.Image.open(pic)
     except:
+        print ("Could not open {}".format(pic))
         return None
 
-    return imagehash.dhash(img)
+    try:
+        return imagehash.dhash(img)
+    except:
+        print ("Could not hash {}".format(pic))
+        return None
 
 # Returns all photos which are considered as "takes"
 # A "take" is a photo which is very close to the previous one
@@ -120,7 +128,7 @@ def get_takes(path):
     is_first = True
     for pic in get_jpegs(path):
         new_hash = get_imagehash(pic)
-        if is_first or current_hash - new_hash > 5:      
+        if is_first or current_hash - new_hash > config.TAKE_SIMILARITY_FACTOR:
             is_first = False
             current_hash = new_hash
             group_start_pic = pic
