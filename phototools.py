@@ -83,11 +83,14 @@ def sha256sum(filename):
 # Move a single file
 def move_file(src, dst_path):
     dst = get_new_name(src, dst_path)
-    if os.path.isfile(dst):
-        print ('Skip ' + src + ', ' + dst + ' exists')
-    else:
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
-        shutil.move(src, dst)
+    try:
+        if os.path.isfile(dst):
+            print ('Skip ' + src + ', ' + dst + ' exists')
+        else:
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.move(src, dst)
+    except:
+        print ("Could not move {} to {}".format(src, dst))
                
 # Checks if directory has duplicate files
 # Compares only datestamp and SHA, ignores content
@@ -155,3 +158,27 @@ def move_all_files(src_path, dst_path):
         move_file(pic, dst_path)
     for pic in get_nefs(src_path):
         move_file(pic, dst_path)
+
+# Move all NEF files which have JPG files
+# taken in the same second together with JPG files.
+# I usually enable NEF+JPG mode so I can navigate
+# JPG files faster; one archived, they are not
+# really needed. This tool helps to filter them out.
+def move_nef_with_jpg(src_path, dst_path):
+    jpegs_cache = { }
+    for nef in get_nefs(src_path):
+        print (nef)
+        date = get_date(nef)
+        move_nef = False
+
+        directory = os.path.dirname(nef)
+        if not directory in jpegs_cache:
+            jpegs_cache[directory] = [(i, get_date(i)) for i in get_jpegs(directory)]
+
+        for (jpeg, jpeg_date) in jpegs_cache[directory]:
+            if date == jpeg_date and os.path.isfile(jpeg):
+                move_file(jpeg, dst_path)
+                move_nef = True
+
+        if move_nef:
+            move_file(nef, dst_path)
