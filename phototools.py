@@ -27,6 +27,7 @@ import imagehash
 import os
 import PIL.Image
 import shutil
+import time
 
 class config:
     TAKE_SIMILARITY_FACTOR = 5
@@ -43,8 +44,8 @@ def get_nefs(path):
 def date_to_path(data):
     return datetime.datetime.strptime(data, '%Y:%m:%d %H:%M:%S').strftime('%Y/%m %B')
 
-# Returns EXIF datestamp
-def get_exif_date(pic):
+# Returns EXIF metadata
+def get_exif(pic, index):
     try:
         img = PIL.Image.open(pic)
     except:
@@ -53,7 +54,11 @@ def get_exif_date(pic):
     if not hasattr(img, '_getexif'):
         return None
     exif_data = img._getexif()
-    return exif_data.get(36867)
+    return exif_data.get(index)
+
+# Returns EXIF datestamp
+def get_exif_date(pic):
+    return get_exif(pic, 36867)
 
 # Returns NEF datestamp
 # Taken from
@@ -67,11 +72,23 @@ def get_nef_date(pic):
 def get_date(pic):
     return get_nef_date(pic) if pic.lower().endswith('.nef') else get_exif_date(pic)
 
+def combine_path(dst_path, subfolder, pic):
+    return "{}/{}/{}".format(dst_path, subfolder, os.path.basename(pic))
+
 # Returns destination filename
 def get_new_name(pic, dst_path):
     date = get_date(pic)
     if date is not None:
-        return "{}/{}/{}".format(dst_path, date_to_path(date), os.path.basename(pic))
+        return combine_path(dst_path, date_to_path(date), pic)
+
+# Returns whether pic is saved by Instagram or not
+def is_instagram(pic):
+    data = get_exif(pic, 305)
+    return isinstance(data, str) and "Instagram" in data
+
+# Returns creation year
+def get_creation_year(file):
+    return time.strptime(time.ctime(os.path.getmtime(file))).tm_year
 
 def sha256sum(filename):
     h = hashlib.sha256()
@@ -81,8 +98,7 @@ def sha256sum(filename):
     return h.hexdigest()
 
 # Move a single file
-def move_file(src, dst_path):
-    dst = get_new_name(src, dst_path)
+def move_file(src, dst):
     try:
         if os.path.isfile(dst):
             print ('Skip ' + src + ', ' + dst + ' exists')
@@ -91,21 +107,25 @@ def move_file(src, dst_path):
             shutil.move(src, dst)
     except:
         print ("Could not move {} to {}".format(src, dst))
-               
+
+# Move a single file to specified folder
+def move_file_to_folder(src, dst_path):
+    move_file(src, get_new_name(dst_path))
+
 # Checks if directory has duplicate files
 # Compares only datestamp and SHA, ignores content
 # (i.e. ignores photoshoot series)
-def check_duplicates(path):
+def check_duplicates(path, output_path):
     results = dict()
     n = 0
     for pic in get_jpegs(path):
         import PIL.Image
         if (n % 100) == 0:
             print ('photos loaded: ' + str(n))
-        d = get_data(pic)
+        d = os.path.getmtime(pic)
         if results.get(d) is not None:
             if sha256sum(pic) == sha256sum(results.get(d)):
-                print (pic + ' and ' + results.get(d) + ' are same files')
+                move_file(pic, combine_path(output_path, ".", pic))
         results[d] = pic
         n += 1
 
@@ -147,7 +167,7 @@ def get_takes(path):
 # Moves all "takes" to destination
 def move_all_takes(src_path, dst_path):
     for pic in get_takes(src_path):
-        move_file(pic, dst_path)
+        move_file_to_folder(pic, dst_path)
         
 # Moves files from an SD card to the storage
 # The storage will have hiearachied folders like:
@@ -155,9 +175,9 @@ def move_all_takes(src_path, dst_path):
 # If file exists already, it is skipped
 def move_all_files(src_path, dst_path):
     for pic in get_jpegs(src_path):
-        move_file(pic, dst_path)
+        move_file_to_folder(pic, dst_path)
     for pic in get_nefs(src_path):
-        move_file(pic, dst_path)
+        move_file_to_folder(pic, dst_path)
 
 # Move all NEF files which have JPG files
 # taken in the same second together with JPG files.
@@ -177,8 +197,15 @@ def move_nef_with_jpg(src_path, dst_path):
 
         for (jpeg, jpeg_date) in jpegs_cache[directory]:
             if date == jpeg_date and os.path.isfile(jpeg):
-                move_file(jpeg, dst_path)
+                move_file_to_folder(jpeg, dst_path)
                 move_nef = True
 
         if move_nef:
-            move_file(nef, dst_path)
+            move_file_to_folder(nef, dst_path)
+
+# Moves all Instagram-originated pictures to dedicated folder
+def move_all_instagrams(src_path, dst_path):
+    for pic in get_jpegs(src_path):
+        if is_instagram(pic):
+            dst = combine_path(dst_path, get_creation_year(pic), pic)
+            move_file(pic, dst)
