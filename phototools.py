@@ -66,11 +66,11 @@ def get_imagehash(pic):
 
 # Returns global paths to all *.jpg files in directory
 def jpegs(path):
-    return glob.iglob(path + '/**/*.jpg', recursive=True)
+    return sorted(glob.iglob(path + '/**/*.jpg', recursive=True))
 
 # Returns global paths to all *.nef files in directory
 def nefs(path):
-    return glob.iglob(path + '/**/*.nef', recursive=True)
+    return sorted(glob.iglob(path + '/**/*.nef', recursive=True))
 
 def all(path):
     yield from jpegs(path)
