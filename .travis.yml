@@ -1,8 +1,10 @@
 language: python
 python: 3.7
 dist: bionic
+branches:
+  only: master
+
 install: pip install imagehash coverage codecov
-script:
-  - tar -xf td.tar
-  - coverage run -m unittest
+before_script: tar -xf td.tar
+script: coverage run -m unittest
 after_success: codecov
