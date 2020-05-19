@@ -2,4 +2,6 @@ language: python
 python: 3.7
 dist: bionic
 install: pip install imagehash
-script: python -m unittest
+script:
+  - tar -xf td.tar
+  - python -m unittest
