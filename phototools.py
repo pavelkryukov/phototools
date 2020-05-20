@@ -86,7 +86,8 @@ def duplicates(src_path):
         if results.get(d) is not None:
             if get_sha256sum(pic) == get_sha256sum(results.get(d)):
                 yield pic
-        results[d] = pic
+        else:
+            results[d] = pic
         n += 1
 
 # Move all NEF files which have JPG files
