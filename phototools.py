@@ -59,6 +59,27 @@ def get_imagehash(pic):
         print ("Could not open {}".format(pic))
         return None
 
+def get_date(pic):
+    # Returns NEF datestamp
+    # Taken from
+    # https://pascalbrokmeier.de/2018-01-24/2018-01-24-Getting_the_capture_date_in_a_nef_Nikon_raw_file_with_python/
+    def get_nef_date(pic):
+        with open(pic, 'rb') as raw_chunk:
+            raw_chunk.seek(2964)
+            capture_date_bin = raw_chunk.read(19)
+            return str(capture_date_bin)[2:-1]
+
+    # Returns creation year
+    def get_creation_date(file):
+        ctime = time.ctime(os.path.getmtime(file))
+        return datetime.datetime.strptime(ctime, "%a %b %d %H:%M:%S %Y").strftime('%Y:%m:%d %H:%M:%S')
+
+    if pic.lower().endswith('.nef'):
+        return get_nef_date(pic)
+
+    exif_date = get_exif(pic, 36867)
+    return get_creation_date(pic) if exif_date is None else exif_date
+
 # Returns true if two images are likely to be a part of carousel panorama
 def is_panorama(left_name, right_name):
     if right_name is None:
@@ -94,17 +115,13 @@ def all(path):
 # (i.e. ignores photoshoot series)
 def duplicates(src_path):
     results = dict()
-    n = 0
     for pic in jpegs(src_path):
-        if (n % 100) == 0:
-            print ('photos loaded: ' + str(n))
         d = os.path.getmtime(pic)
         if results.get(d) is not None:
             if get_sha256sum(pic) == get_sha256sum(results.get(d)):
                 yield pic
         else:
             results[d] = pic
-        n += 1
 
 # Move all NEF files which have JPG files
 # taken in the same second together with JPG files.
@@ -114,13 +131,12 @@ def duplicates(src_path):
 def nefs_with_jpg(src_path):
     jpegs_cache = { }
     for nef in nefs(src_path):
-        print (nef)
         date = get_date(nef)
         move_nef = False
 
         directory = os.path.dirname(nef)
         if not directory in jpegs_cache:
-            jpegs_cache[directory] = [(i, get_date(i)) for i in get_jpegs(directory)]
+            jpegs_cache[directory] = [(i, get_date(i)) for i in jpegs(directory)]
 
         for (jpeg, jpeg_date) in jpegs_cache[directory]:
             if date == jpeg_date and os.path.isfile(jpeg):
@@ -165,27 +181,6 @@ def takes(factor):
 
 # Returns destination pic
 def get_new_name(pic, dst_path):
-    def get_date(pic):
-        # Returns NEF datestamp
-        # Taken from
-        # https://pascalbrokmeier.de/2018-01-24/2018-01-24-Getting_the_capture_date_in_a_nef_Nikon_raw_file_with_python/
-        def get_nef_date(pic):
-            with open(pic, 'rb') as raw_chunk:
-                raw_chunk.seek(2964)
-                capture_date_bin = raw_chunk.read(19)
-                return str(capture_date_bin)[2:-1]
-
-        # Returns creation year
-        def get_creation_date(file):
-            ctime = time.ctime(os.path.getmtime(file))
-            return datetime.datetime.strptime(ctime, "%a %b %d %H:%M:%S %Y").strftime('%Y:%m:%d %H:%M:%S')
-
-        if pic.lower().endswith('.nef'):
-            return get_nef_date(pic)
-
-        exif_date = get_exif(pic, 36867)
-        return get_creation_date(pic) if exif_date is None else exif_date
-
     subfolder = datetime.datetime.strptime(get_date(pic), '%Y:%m:%d %H:%M:%S').strftime('%Y/%m %B')
     return "{}/{}/{}".format(dst_path, subfolder, os.path.basename(pic))
 

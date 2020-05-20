@@ -30,6 +30,9 @@ class TestPhototools(unittest.TestCase):
     def test_instagram(self):
         self.assertFileListEqual(pt.instagram("td"), ["td/panorama/left.jpg", "td/panorama/right.jpg", "td/plain/chess.jpg"])
 
+    def test_nefs_with_jpg(self):
+        self.assertFileListEqual(pt.nefs_with_jpg("td"), [])
+
     def test_panorama(self):
         self.assertTrue(pt.is_panorama("td/panorama/left.jpg", "td/panorama/right.jpg"))
         self.assertFalse(pt.is_panorama("td/panorama/right.jpg", "td/panorama/right.jpg"))
