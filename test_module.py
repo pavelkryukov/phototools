@@ -28,4 +28,11 @@ class TestPhototools(unittest.TestCase):
         self.assertFileListEqual(pt.duplicates("td"), ["td/takes/jewel1.jpg"])
 
     def test_instagram(self):
-        self.assertFileListEqual(pt.instagram("td"), ["td/plain/chess.jpg"])
+        self.assertFileListEqual(pt.instagram("td"), ["td/panorama/left.jpg", "td/panorama/right.jpg", "td/plain/chess.jpg"])
+
+    def test_panorama(self):
+        self.assertTrue(pt.is_panorama("td/panorama/left.jpg", "td/panorama/right.jpg"))
+        self.assertFalse(pt.is_panorama("td/panorama/right.jpg", "td/panorama/right.jpg"))
+        self.assertFalse(pt.is_panorama("td/panorama/right.jpg", "td/panorama/left.jpg"))
+        self.assertFalse(pt.is_panorama("td/panorama/left.jpg", None))
+        self.assertFalse(pt.is_panorama("td/panorama/left.jpg", "td/plain/jewel2.jpg"))

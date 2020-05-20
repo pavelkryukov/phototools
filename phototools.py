@@ -59,6 +59,22 @@ def get_imagehash(pic):
         print ("Could not open {}".format(pic))
         return None
 
+# Returns true if two images are likely to be a part of carousel panorama
+def is_panorama(left_name, right_name):
+    if right_name is None:
+        return False
+
+    with PIL.Image.open(left_name) as left:
+        with PIL.Image.open(right_name) as right:
+            (width, height) = left.size
+            if height != right.size[1]: # Different height
+                return False
+
+            edges = [(left.getpixel((width - 1, i)), right.getpixel((0, i))) for i in range(height)]
+            metric = [((l[0] - r[0]) ** 2 + (l[1] - r[1]) ** 2 + (l[2] - r[2]) ** 2) / 3 for (l, r) in edges]
+
+            return (sum(metric) / height) < 256
+
 ### GENERATORS
 
 # Returns global paths to all *.jpg files in directory
