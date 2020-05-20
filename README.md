@@ -21,7 +21,8 @@ Different generators may be used to filter specific files:
 all           # all files
 jpegs         # jpeg files
 nefs          # Nikon raws files
-takes         # all similar and sequntially named photos, so I can keep the best one and remove all others
+takes(15)     # all similar and sequntially named photos, so I can keep the best one and remove all others
+              # parameter sets threshold, 1 is to get very similar, 15 is to catch the less similar ones
 duplicates    # all photos which are stored under different name (SHA256-based)
 nefs_with_jpg # raw+jpg pairs so I can keep only one format
 instagram     # all photos saved by Instagram app

@@ -15,21 +15,17 @@ class TestPhototools(unittest.TestCase):
         self.assertEqual(pt.get_new_name("td/plain/balloon.nef", "output"), "output/2016/11 November/balloon.nef")
         self.assertEqual(pt.get_new_name("td/plain/jewel2.jpg",  "output"), "output/2016/11 November/jewel2.jpg")
 
-    def test_instagram(self):
-        self.assertFileListEqual(pt.instagram("td"), ["td/plain/chess.jpg"])
-
-    def test_get_lists(self):
+    def test_simple(self):
         self.assertFileListEqual(pt.nefs("td/plain"),  ["td/plain/balloon.nef"])
         self.assertFileListEqual(pt.jpegs("td/plain"), ["td/plain/chess.jpg", "td/plain/jewel2.jpg"])
         self.assertFileListEqual(pt.all("td/plain"),   ["td/plain/chess.jpg", "td/plain/jewel2.jpg", "td/plain/balloon.nef"])
 
-    def test_get_takes_5(self):
-        pt.config.TAKE_SIMILARITY_FACTOR = 5
-        self.assertFileListEqual(pt.takes("td/takes"), [])
+    def test_takes(self):
+        self.assertFileListEqual(pt.takes(5)("td/takes"), [])
+        self.assertFileListEqual(pt.takes(15)("td/takes"), ["td/takes/jewel1.jpg", "td/takes/jewel3.jpg"])
 
-    def test_get_takes_15(self):
-        pt.config.TAKE_SIMILARITY_FACTOR = 15
-        self.assertFileListEqual(pt.takes("td/takes"), ["td/takes/jewel1.jpg", "td/takes/jewel3.jpg"])
-
-    def test_get_duplcates(self):
+    def test_duplcates(self):
         self.assertFileListEqual(pt.duplicates("td"), ["td/takes/jewel1.jpg"])
+
+    def test_instagram(self):
+        self.assertFileListEqual(pt.instagram("td"), ["td/plain/chess.jpg"])

@@ -29,9 +29,6 @@ import PIL.Image
 import shutil
 import time
 
-class config:
-    TAKE_SIMILARITY_FACTOR = 5
-
 ### ATTRIBUTE GETTERS
 
 def get_sha256sum(pic):
@@ -127,22 +124,25 @@ def instagram(src_path):
 # A "take" is a photo which is very close to the previous one
 # Usually that happens with sequence shot and there is no need
 # to keep all of the shots, 1 or 2 may be left.
-def takes(path):
-    is_first = True
-    for pic in jpegs(path):
-        new_hash = get_imagehash(pic)
-        if is_first or current_hash - new_hash > config.TAKE_SIMILARITY_FACTOR:
-            is_first = False
-            current_hash = new_hash
-            group_start_pic = pic
-            group_start_pic_returned = False
-            continue
+def takes(factor):
+    def takes_impl(path, factor):
+        is_first = True
+        for pic in jpegs(path):
+            new_hash = get_imagehash(pic)
+            if is_first or current_hash - new_hash > factor:
+                is_first = False
+                current_hash = new_hash
+                group_start_pic = pic
+                group_start_pic_returned = False
+                continue
 
-        if not group_start_pic_returned:
-            group_start_pic_returned = True
-            yield group_start_pic
+            if not group_start_pic_returned:
+                group_start_pic_returned = True
+                yield group_start_pic
 
-        yield pic
+            yield pic
+
+    return lambda path: takes_impl(path, factor)
 
 ### MOVING CODE
 
