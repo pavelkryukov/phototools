@@ -55,7 +55,7 @@ def get_imagehash(pic):
             except:
                 print ("Could not hash {}".format(pic))
                 return None
-    except:
+    except IOError:
         print ("Could not open {}".format(pic))
         return None
 

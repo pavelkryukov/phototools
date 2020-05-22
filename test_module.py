@@ -10,6 +10,9 @@ class TestPhototools(unittest.TestCase):
             self.assertFalse(b is None, '{} has no match'.format(a))
             self.assertTrue(os.path.samefile(a, b), '{} and {} are different files'.format(a, b))
 
+    def test_get_imagehash(self):
+        self.assertIsNone(pt.get_imagehash("td/not_an_image.txt"))
+
     def test_get_new_name(self):
         self.assertEqual(pt.get_new_name("td/plain/chess.jpg",  "output"),  "output/2013/08 August/chess.jpg")
         self.assertEqual(pt.get_new_name("td/plain/balloon.nef", "output"), "output/2016/11 November/balloon.nef")
