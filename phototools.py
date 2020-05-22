@@ -98,13 +98,17 @@ def is_panorama(left_name, right_name):
 
 ### GENERATORS
 
+def get_all_by_extensions(exts, path):
+    for ext in exts:
+        yield from glob.iglob('{}/**/*.{}'.format(path, ext), recursive=True)
+
 # Returns global paths to all *.jpg files in directory
 def jpegs(path):
-    return sorted(glob.iglob(path + '/**/*.jpg', recursive=True))
+    return sorted(get_all_by_extensions(['jpg', 'jpeg', 'jpe'], path))
 
 # Returns global paths to all *.nef files in directory
 def nefs(path):
-    return sorted(glob.iglob(path + '/**/*.nef', recursive=True))
+    return sorted(get_all_by_extensions(['nef'], path))
 
 def all(path):
     yield from jpegs(path)
