@@ -164,7 +164,7 @@ def instagram(src_path):
 def takes(factor):
     def takes_impl(path, factor):
         is_first = True
-        for pic in jpegs(path):
+        for pic in all(path):
             new_hash = get_imagehash(pic)
             if is_first or current_hash - new_hash > factor:
                 is_first = False
