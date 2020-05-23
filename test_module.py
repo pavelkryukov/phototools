@@ -31,6 +31,7 @@ class TestPhototools(unittest.TestCase):
 
     def test_duplcates(self):
         self.assertFileListEqual(pt.duplicates("td"), ["td/takes/jewel1.jpg"])
+        self.assertFileListEqual(pt.duplicates_only_hash("td"), ["td/takes/jewel1.jpg"])
 
     def test_instagram(self):
         self.assertFileListEqual(pt.instagram("td"), ["td/panorama/left.jpg", "td/panorama/right.jpg", "td/plain/chess.jpg"])

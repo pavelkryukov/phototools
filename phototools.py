@@ -42,7 +42,15 @@ def get_sha256sum(pic):
 def get_exif(pic, index):
     try:
         with PIL.Image.open(pic) as img:
-            return img._getexif().get(index) if hasattr(img, '_getexif') else None
+            if not hasattr(img, '_getexif'):
+                return None
+
+            exif = img._getexif()
+            if exif is None:
+                print ("Exif is None for {}".format(pic))
+                return None
+            else:
+                return exif.get(index)
     except IOError:
         return None
 
@@ -129,6 +137,17 @@ def duplicates(src_path):
                 yield pic
         else:
             results[d] = pic
+
+# Checks if directory has duplicate files
+# Compares only SHA, so works slower but more accurately
+def duplicates_only_hash(src_path):
+    results = set()
+    for pic in jpegs(src_path):
+        d = get_sha256sum(pic)
+        if d in results:
+            yield pic
+        else:
+            results.add(d)
 
 # Move all raw files which have JPG files
 # taken in the same second together with JPG files.
