@@ -43,7 +43,7 @@ def get_exif(pic, index):
     try:
         with PIL.Image.open(pic) as img:
             return img._getexif().get(index) if hasattr(img, '_getexif') else None
-    except:
+    except IOError:
         return None
 
 # Returns imagehash (see https://pypi.org/project/ImageHash/)
@@ -201,5 +201,5 @@ def move(generator, src_path, dst_path):
             else:
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.move(src, dst)
-        except:
+        except OSError:
             print ("Could not move {} to {}".format(src, dst))
