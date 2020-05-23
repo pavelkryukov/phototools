@@ -69,10 +69,6 @@ def get_date(pic):
             capture_date_bin = raw_chunk.read(19)
             return str(capture_date_bin)[2:-1]
 
-    def get_orf_date(pic):
-        with open(pic, 'rb') as f:
-            return exifread.process_file(f)
-
     # Returns creation year
     def get_creation_date(file):
         ctime = time.ctime(os.path.getmtime(file))
@@ -113,10 +109,9 @@ def get_all_by_extensions(exts, path):
 def jpegs(path):
     return sorted(get_all_by_extensions(['jpg', 'jpeg', 'jpe'], path))
 
-# Returns global paths to all *.nef files in directory
+# Returns global paths to all raw files in directory
 def raws(path):
-    yield from sorted(get_all_by_extensions(['nef'], path))
-    yield from sorted(get_all_by_extensions(['orf'], path))
+    return sorted(get_all_by_extensions(['nef', 'orf'], path))
 
 def all(path):
     yield from jpegs(path)
@@ -135,28 +130,28 @@ def duplicates(src_path):
         else:
             results[d] = pic
 
-# Move all NEF files which have JPG files
+# Move all raw files which have JPG files
 # taken in the same second together with JPG files.
-# I usually enable NEF+JPG mode so I can navigate
+# I usually enable raw+JPG mode so I can navigate
 # JPG files faster; one archived, they are not
 # really needed. This tool helps to filter them out.
 def nefs_with_jpg(src_path):
     jpegs_cache = { }
-    for nef in raws(src_path):
-        date = get_date(nef)
-        move_nef = False
+    for raw in raws(src_path):
+        date = get_date(raw)
+        move_raw = False
 
-        directory = os.path.dirname(nef)
+        directory = os.path.dirname(raw)
         if not directory in jpegs_cache:
             jpegs_cache[directory] = [(i, get_date(i)) for i in jpegs(directory)]
 
         for (jpeg, jpeg_date) in jpegs_cache[directory]:
             if date == jpeg_date and os.path.isfile(jpeg):
-                move_nef = True
+                move_raw = True
                 yield jpeg
 
-        if move_nef:
-            yield nef
+        if move_raw:
+            yield raw
 
 # Returns whether pic is saved by Instagram or not
 def instagram(src_path):
