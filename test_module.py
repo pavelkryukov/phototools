@@ -12,16 +12,18 @@ class TestPhototools(unittest.TestCase):
 
     def test_get_imagehash(self):
         self.assertIsNone(pt.get_imagehash("td/not_an_image.txt"))
+#       self.assertIsNotNone(pt.get_imagehash("td/plain/nuthatch.orf"))
 
     def test_get_new_name(self):
         self.assertEqual(pt.get_new_name("td/plain/chess.jpg",  "output"),  "output/2013/08 August/chess.jpg")
         self.assertEqual(pt.get_new_name("td/plain/balloon.nef", "output"), "output/2016/11 November/balloon.nef")
         self.assertEqual(pt.get_new_name("td/plain/jewel2.jpg",  "output"), "output/2016/11 November/jewel2.jpg")
+        self.assertEqual(pt.get_new_name("td/plain/nuthatch.orf", "output"),"output/2019/10 October/nuthatch.orf")
 
     def test_simple(self):
-        self.assertFileListEqual(pt.nefs("td/plain"),  ["td/plain/balloon.nef"])
+        self.assertFileListEqual(pt.raws("td/plain"),  ["td/plain/balloon.nef", "td/plain/nuthatch.orf"])
         self.assertFileListEqual(pt.jpegs("td/plain"), ["td/plain/chess.jpg", "td/plain/jewel2.jpg"])
-        self.assertFileListEqual(pt.all("td/plain"),   ["td/plain/chess.jpg", "td/plain/jewel2.jpg", "td/plain/balloon.nef"])
+        self.assertFileListEqual(pt.all("td/plain"),   ["td/plain/chess.jpg", "td/plain/jewel2.jpg", "td/plain/balloon.nef", "td/plain/nuthatch.orf"])
 
     def test_takes(self):
         self.assertFileListEqual(pt.takes(5)("td/takes"), [])

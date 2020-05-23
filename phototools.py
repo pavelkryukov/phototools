@@ -69,6 +69,10 @@ def get_date(pic):
             capture_date_bin = raw_chunk.read(19)
             return str(capture_date_bin)[2:-1]
 
+    def get_orf_date(pic):
+        with open(pic, 'rb') as f:
+            return exifread.process_file(f)
+
     # Returns creation year
     def get_creation_date(file):
         ctime = time.ctime(os.path.getmtime(file))
@@ -76,6 +80,9 @@ def get_date(pic):
 
     if pic.lower().endswith('.nef'):
         return get_nef_date(pic)
+
+    if pic.lower().endswith('.orf'):
+        return get_creation_date(pic)
 
     exif_date = get_exif(pic, 36867)
     return get_creation_date(pic) if exif_date is None else exif_date
@@ -107,12 +114,13 @@ def jpegs(path):
     return sorted(get_all_by_extensions(['jpg', 'jpeg', 'jpe'], path))
 
 # Returns global paths to all *.nef files in directory
-def nefs(path):
-    return sorted(get_all_by_extensions(['nef'], path))
+def raws(path):
+    yield from sorted(get_all_by_extensions(['nef'], path))
+    yield from sorted(get_all_by_extensions(['orf'], path))
 
 def all(path):
     yield from jpegs(path)
-    yield from nefs(path)
+    yield from raws(path)
 
 # Checks if directory has duplicate files
 # Compares only datestamp and SHA, ignores content
@@ -134,7 +142,7 @@ def duplicates(src_path):
 # really needed. This tool helps to filter them out.
 def nefs_with_jpg(src_path):
     jpegs_cache = { }
-    for nef in nefs(src_path):
+    for nef in raws(src_path):
         date = get_date(nef)
         move_nef = False
 
