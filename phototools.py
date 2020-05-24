@@ -58,11 +58,7 @@ def get_exif(pic, index):
 def get_imagehash(pic):
     try:
         with PIL.Image.open(pic) as img:
-            try:
-                return imagehash.dhash(img)
-            except:
-                print ("Could not hash {}".format(pic))
-                return None
+            return imagehash.dhash(img)
     except IOError:
         print ("Could not open {}".format(pic))
         return None
