@@ -1,5 +1,6 @@
 [![Build Status](https://travis-ci.com/pavelkryukov/phototools.svg?branch=master)](https://travis-ci.com/pavelkryukov/phototools)
 [![codecov](https://codecov.io/gh/pavelkryukov/phototools/branch/master/graph/badge.svg)](https://codecov.io/gh/pavelkryukov/phototools)
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/pavelkryukov/phototools.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/pavelkryukov/phototools/alerts/)
 
 # Photo Tools
 
