@@ -31,6 +31,9 @@ import time
 
 ### ATTRIBUTE GETTERS
 
+def get_kosher_date_format():
+    return '%Y:%m:%d %H:%M:%S'
+
 def get_sha256sum(pic):
     h = hashlib.sha256()
     with open(pic, 'rb', buffering=0) as f:
@@ -80,7 +83,7 @@ def get_date(pic):
     # Returns creation year
     def get_creation_date(file):
         ctime = time.ctime(os.path.getmtime(file))
-        return datetime.datetime.strptime(ctime, "%a %b %d %H:%M:%S %Y").strftime('%Y:%m:%d %H:%M:%S')
+        return datetime.datetime.strptime(ctime, "%a %b %d %H:%M:%S %Y").strftime(get_kosher_date_format())
 
     if pic.lower().endswith('.nef'):
         return get_nef_date(pic)
@@ -90,6 +93,9 @@ def get_date(pic):
 
     exif_date = get_exif(pic, 36867)
     return get_creation_date(pic) if exif_date is None else exif_date
+    
+def time_diff(date1, date2):
+    return (datetime.datetime.strptime(date1, get_kosher_date_format()) - datetime.datetime.strptime(date2, get_kosher_date_format())).total_seconds()
 
 # Returns true if two images are likely to be a part of carousel panorama
 def is_panorama(left_name, right_name):
@@ -188,9 +194,11 @@ def takes(factor):
         is_first = True
         for pic in all(path):
             new_hash = get_imagehash(pic)
-            if is_first or current_hash - new_hash > factor:
+            new_date = get_date(pic)
+            if is_first or time_diff(new_date, current_date) > 180 or current_hash - new_hash > factor:
                 is_first = False
                 current_hash = new_hash
+                current_date = new_date
                 group_start_pic = pic
                 group_start_pic_returned = False
                 continue
@@ -207,7 +215,7 @@ def takes(factor):
 
 # Returns destination pic
 def get_new_name(pic, dst_path):
-    subfolder = datetime.datetime.strptime(get_date(pic), '%Y:%m:%d %H:%M:%S').strftime('%Y/%m %B')
+    subfolder = datetime.datetime.strptime(get_date(pic), get_kosher_date_format()).strftime('%Y/%m %B')
     return "{}/{}/{}".format(dst_path, subfolder, os.path.basename(pic))
 
 # Moves generated files to the storage
