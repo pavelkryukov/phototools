@@ -31,9 +31,6 @@ import time
 
 ### ATTRIBUTE GETTERS
 
-def get_kosher_date_format():
-    return '%Y:%m:%d %H:%M:%S'
-
 def get_sha256sum(pic):
     h = hashlib.sha256()
     with open(pic, 'rb', buffering=0) as f:
@@ -78,12 +75,12 @@ def get_date(pic):
         with open(pic, 'rb') as raw_chunk:
             raw_chunk.seek(2964)
             capture_date_bin = raw_chunk.read(19)
-            return str(capture_date_bin)[2:-1]
+            return datetime.datetime.strptime(str(capture_date_bin)[2:-1], '%Y:%m:%d %H:%M:%S')
 
     # Returns creation year
     def get_creation_date(file):
         ctime = time.ctime(os.path.getmtime(file))
-        return datetime.datetime.strptime(ctime, "%a %b %d %H:%M:%S %Y").strftime(get_kosher_date_format())
+        return datetime.datetime.strptime(ctime, "%a %b %d %H:%M:%S %Y")
 
     if pic.lower().endswith('.nef'):
         return get_nef_date(pic)
@@ -91,11 +88,14 @@ def get_date(pic):
     if pic.lower().endswith('.orf'):
         return get_creation_date(pic)
 
-    exif_date = get_exif(pic, 36867)
-    return get_creation_date(pic) if exif_date is None else exif_date
+    exif = get_exif(pic, 36867)
+    if exif is None:
+        return get_creation_date(pic)
+
+    return datetime.datetime.strptime(exif, '%Y:%m:%d %H:%M:%S')
     
 def time_diff(date1, date2):
-    return (datetime.datetime.strptime(date1, get_kosher_date_format()) - datetime.datetime.strptime(date2, get_kosher_date_format())).total_seconds()
+    return (date1 - date2).total_seconds()
 
 # Returns true if two images are likely to be a part of carousel panorama
 def is_panorama(left_name, right_name):
@@ -215,7 +215,7 @@ def takes(factor):
 
 # Returns destination pic
 def get_new_name(pic, dst_path):
-    subfolder = datetime.datetime.strptime(get_date(pic), get_kosher_date_format()).strftime('%Y/%m %B')
+    subfolder = get_date(pic).strftime('%Y/%m %B')
     return "{}/{}/{}".format(dst_path, subfolder, os.path.basename(pic))
 
 # Moves generated files to the storage

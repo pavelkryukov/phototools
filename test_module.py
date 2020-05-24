@@ -14,8 +14,13 @@ class TestPhototools(unittest.TestCase):
         self.assertIsNone(pt.get_imagehash("td/not_an_image.txt"))
 #       self.assertIsNotNone(pt.get_imagehash("td/plain/nuthatch.orf"))
 
-    def test_date_to_seconds(self):
-        self.assertEqual(pt.time_diff("2012:08:04 18:09:06", "2012:08:04 17:09:06"), 3600)
+    def test_date(self):
+        time1 = pt.get_date("td/takes/jewel1.jpg")
+        time2 = pt.get_date("td/plain/jewel2.jpg")
+        time3 = pt.get_date("td/takes/jewel3.jpg")
+        self.assertEqual(time1, time2)
+        self.assertEqual(pt.time_diff(time2, time1), 0)
+        self.assertEqual(pt.time_diff(time3, time1), 1)
 
     def test_get_new_name(self):
         self.assertEqual(pt.get_new_name("td/plain/chess.jpg",  "output"),  "output/2013/08 August/chess.jpg")
