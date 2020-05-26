@@ -209,18 +209,14 @@ def takes(factor):
 
 ### MOVING CODE
 
-# Returns destination pic
-def get_new_name(pic, dst_path):
-    subfolder = get_date(pic).strftime('%Y/%m %B')
-    return "{}/{}/{}".format(dst_path, subfolder, os.path.basename(pic))
-
 # Moves generated files to the storage
 # The storage will have hiearachied folders like:
 # "2010/09 September"
 # If file exists already, it is skipped
-def move(generator, src_path, dst_path):
+def move(generator, src_path, dst_path, name_template='%Y/%m %B'):
     for src in generator(src_path):
-        dst = get_new_name(src, dst_path)
+        subfolder = get_date(src).strftime(name_template)
+        dst = "{}/{}/{}".format(dst_path, subfolder, os.path.basename(src))
         try:
             if os.path.isfile(dst):
                 print ('Skip ' + src + ', ' + dst + ' exists')

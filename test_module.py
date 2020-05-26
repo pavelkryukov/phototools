@@ -23,10 +23,10 @@ class TestPhototools(unittest.TestCase):
         self.assertEqual(pt.time_diff(time3, time1), 1)
 
     def test_get_new_name(self):
-        self.assertEqual(pt.get_new_name("td/plain/chess.jpg",  "output"),  "output/2013/08 August/chess.jpg")
-        self.assertEqual(pt.get_new_name("td/plain/balloon.nef", "output"), "output/2016/11 November/balloon.nef")
-        self.assertEqual(pt.get_new_name("td/plain/jewel2.jpg",  "output"), "output/2016/11 November/jewel2.jpg")
-        self.assertEqual(pt.get_new_name("td/plain/nuthatch.orf", "output"),"output/2019/10 October/nuthatch.orf")
+        self.assertEqual(pt.get_date("td/plain/chess.jpg").strftime("%Y %B"), "2013 August")
+        self.assertEqual(pt.get_date("td/plain/jewel2.jpg").strftime("%Y %B"), "2016 November")
+        self.assertEqual(pt.get_date("td/plain/balloon.nef").strftime("%Y %B"), "2016 November")
+        self.assertEqual(pt.get_date("td/plain/nuthatch.orf").strftime("%Y %B"),"2019 October")
 
     def test_simple(self):
         self.assertFileListEqual(pt.raws("td/plain"),  ["td/plain/balloon.nef", "td/plain/nuthatch.orf"])
