@@ -213,9 +213,9 @@ def takes(factor):
 # The storage will have hiearachied folders like:
 # "2010/09 September"
 # If file exists already, it is skipped
-def move(generator, src_path, dst_path, name_template='%Y/%m %B'):
+def move(generator, src_path, dst_path, format='%Y/%m %B'):
     for src in generator(src_path):
-        subfolder = get_date(src).strftime(name_template)
+        subfolder = get_date(src).strftime(format)
         dst = "{}/{}/{}".format(dst_path, subfolder, os.path.basename(src))
         try:
             if os.path.isfile(dst):

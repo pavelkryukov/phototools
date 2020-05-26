@@ -8,15 +8,17 @@ A set of tools I use to manipulate with my photo library.
 
 ### Move and arrange
 
-The following command moves files and puts them in structured manner (`2020/05 May/Filename`).
+The following command moves files and puts them in structured manner.
 If destination file exists, no move is performed.
 
-```Python
+```python
 import phototools as pt
-pt.move(pt.generator, src_path="E:\\Photos", dst_path="E:\\SortedPhotos")
+pt.move(generator=pt.all, src_path="E:\\Photos", dst_path="E:\\SortedPhotos", format='%Y/%m %B')
 ```
 
-Different generators may be used to filter specific files:
+`format` defines folders structure: `%Y/%m %B` => `2020/05 May/Filename`.
+
+To filter specific files, you may use different generators:
 
 ```python
 all                  # all files
@@ -33,11 +35,10 @@ instagram            # all photos saved by Instagram app
 ### Testing
 
 Testing is handled with default `unittest` module.
-
-Before running tests, unpack samples:
+Unpack samples before running tests (archive preserves filesystem timestamps).
 
 ```bash
 tar -xf td.tar
+python -m unittest -b
 ```
 
-Archive is needed to preserve filesystem time stamps.
