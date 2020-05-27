@@ -32,6 +32,12 @@ class FileSystemTest(unittest.TestCase):
             "td/plain/balloon.nef",
             "td/plain/nuthatch.orf"
         ]
+        self.directories = [
+            'td/plain/empty_dir',
+            'td/plain/empty',
+            'td/plain/empty/empty',
+            'td/plain/empty/empty2',
+        ]
         self.assertFilesExist()
 
     def tearDown(self):
@@ -41,6 +47,8 @@ class FileSystemTest(unittest.TestCase):
         from os import path
         for file in self.all_files:
             self.assertTrue(path.isfile(file), "'{}' must exist, make sure you unpacked the archive".format(file))
+        for d in self.directories:
+            self.assertTrue(path.isdir(d), "'{}' must exist, make sure you unpacked the archive".format(d))
 
     def assertFileListEqual(self, list1, list2):
         import itertools
@@ -100,11 +108,11 @@ class TestMovers(FileSystemTest):
     def get_arguments_list(self, mock, index):
         return [args[index] for args in list(zip(*mock.call_args_list))[0]]
 
-    @mock.patch('os.rmdir')
+    @mock.patch('os.removedirs')
     @mock.patch('os.path.isfile', return_value=False)
     @mock.patch('os.makedirs')
     @mock.patch('shutil.move')
-    def test_move(self, mock_move, mock_makedirs, mock_isfile, mock_rmdir):
+    def test_move(self, mock_move, mock_makedirs, mock_isfile, mock_removedirs):
         import os
         pt.move(pt.all, "td/plain", "new/td", format='%Y/%B')
 
@@ -119,15 +127,15 @@ class TestMovers(FileSystemTest):
         self.assertFileListEqual(self.get_arguments_list(mock_move, 0), self.all_files)
         self.assertEqual(self.get_arguments_list(mock_move, 1), new_files)
         self.assertEqual(self.get_arguments_list(mock_makedirs, 0), new_dirs)
-        self.assertFileListEqual(self.get_arguments_list(mock_rmdir, 0), ['td/plain/empty'])
+        self.assertFileListEqual(self.get_arguments_list(mock_removedirs, 0), ['td/plain/empty', 'td/plain/empty_dir'])
 
-    @mock.patch('os.rmdir')
+    @mock.patch('os.removedirs')
     @mock.patch('os.path.isfile', return_value=True)
     @mock.patch('os.makedirs')
     @mock.patch('shutil.move')
-    def test_move_nothing(self, mock_move, mock_makedirs, mock_isfile, mock_rmdir):
+    def test_move_nothing(self, mock_move, mock_makedirs, mock_isfile, mock_removedirs):
         pt.move(pt.all, "td/plain", "new/td")
 
         self.assertFalse(mock_makedirs.call_args_list)
         self.assertFalse(mock_move.call_args_list)
-        self.assertFileListEqual(self.get_arguments_list(mock_rmdir, 0), ['td/plain/empty'])
+        self.assertFileListEqual(self.get_arguments_list(mock_removedirs, 0), ['td/plain/empty', 'td/plain/empty_dir'])

@@ -207,24 +207,32 @@ def takes(factor):
 
     return lambda path: takes_impl(path, factor)
 
-### MOVING CODE
+### MOVING CODE 
 
 # Moves generated files to the storage
 # The storage will have hiearachied folders like:
 # "2010/09 September"
 # If file exists already, it is skipped
 def move(generator, src_path, dst_path, format='%Y/%m %B'):
-    def remove_empty_dirs(path):
-        if not os.path.isdir(path):
-            return
+    def is_empty_dir(path):
+        for f in os.listdir(path):
+            fullpath = os.path.join(path, f)
+            if not os.path.isdir(fullpath) or not is_empty_dir(fullpath):
+                return False
 
+        return True
+
+    def get_empty_dirs(path):
+        if is_empty_dir(path):
+            return [path]
+
+        result = []
         for f in os.listdir(path):
             fullpath = os.path.join(path, f)
             if os.path.isdir(fullpath):
-                remove_empty_dirs(fullpath)
+                result.extend(get_empty_dirs(fullpath))
 
-        if len(os.listdir(path)) == 0:
-            os.rmdir(path)
+        return result  
 
     for src in generator(src_path):
         subfolder = get_date(src).strftime(format)
@@ -238,4 +246,6 @@ def move(generator, src_path, dst_path, format='%Y/%m %B'):
         except OSError:
             print ("Could not move {} to {}".format(src, dst))
 
-    remove_empty_dirs(src_path)
+    for d in get_empty_dirs(src_path):
+        os.removedirs(d)
+
