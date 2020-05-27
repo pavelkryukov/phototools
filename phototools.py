@@ -214,24 +214,34 @@ def takes(factor):
 # "2010/09 September"
 # If file exists already, it is skipped
 def move(generator, src_path, dst_path, format='%Y/%m %B'):
-    def is_empty_dir(path):
-        for f in os.listdir(path):
-            fullpath = os.path.join(path, f)
-            if not os.path.isdir(fullpath) or not is_empty_dir(fullpath):
-                return False
-
-        return True
-
     def get_empty_dirs(path):
-        if is_empty_dir(path):
-            return [path]
-
         result = []
+        is_empty = True
         for f in os.listdir(path):
-            fullpath = os.path.join(path, f)
-            if os.path.isdir(fullpath):
-                result.extend(get_empty_dirs(fullpath))
+            subdir = os.path.join(path, f)
+            
+            # Has a file, therefore not empty
+            if not os.path.isdir(subdir):
+                is_empty = False
+                continue
 
+            d = get_empty_dirs(subdir)
+
+            # If subdirectory has files
+            # ‘d' would be an empty list
+            # or a list of subsubdirectories;
+            # but not a subdirectory name
+            if not subdir in d:
+                is_empty = False
+
+            result.extend(d)
+
+        # The directory does not have files
+        # and all subdirectories do not,
+        # so just remove the directory
+        if is_empty:
+            return [path]
+ 
         return result  
 
     for src in generator(src_path):

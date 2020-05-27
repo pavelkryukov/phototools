@@ -134,7 +134,7 @@ class TestMovers(FileSystemTest):
     @mock.patch('os.makedirs')
     @mock.patch('shutil.move')
     def test_move_nothing(self, mock_move, mock_makedirs, mock_isfile, mock_removedirs):
-        pt.move(pt.all, "td/plain", "new/td")
+        pt.move(pt.all, "td", "new/td")
 
         self.assertFalse(mock_makedirs.call_args_list)
         self.assertFalse(mock_move.call_args_list)
