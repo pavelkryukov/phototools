@@ -97,29 +97,27 @@ class TestGenerators(FileSystemTest):
         self.assertFileListEqual(pt.nefs_with_jpg("td"), [])
 
 class TestMovers(FileSystemTest):
-    def setUp(self):
-        from os import path
-        super(TestMovers, self).setUp()
-        self.new_files = [
-            'new/td/2013/August/chess.jpg',
-            'new/td/2016/November/jewel2.jpg',
-            'new/td/2016/November/balloon.nef',
-            'new/td/2019/October/nuthatch.orf'
-        ]
-        self.new_dirs = [path.dirname(x) for x in self.new_files]
-
     @mock.patch('os.path.isfile', return_value=False)
     @mock.patch('os.makedirs')
     @mock.patch('shutil.move')
     def test_move(self, mock_move, mock_makedirs, mock_isfile):
+        import os
         pt.move(pt.all, "td/plain", "new/td", format='%Y/%B')
 
         move_args = list(zip(*mock_move.call_args_list))[0]
         dirs_args = [args[0] for args in list(zip(*mock_makedirs.call_args_list))[0]]
 
+        new_files = [
+            'new/td/2013/August/chess.jpg',
+            'new/td/2016/November/jewel2.jpg',
+            'new/td/2016/November/balloon.nef',
+            'new/td/2019/October/nuthatch.orf'
+        ]
+        new_dirs = [os.path.dirname(x) for x in new_files]
+        
         self.assertFileListEqual([args[0] for args in move_args], self.all_files)
-        self.assertEqual([args[1] for args in move_args], self.new_files)
-        self.assertEqual(dirs_args, self.new_dirs)
+        self.assertEqual([args[1] for args in move_args], new_files)
+        self.assertEqual(dirs_args, new_dirs)
 
     @mock.patch('os.path.isfile', return_value=True)
     @mock.patch('os.makedirs')
