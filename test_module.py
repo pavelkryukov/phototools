@@ -97,15 +97,16 @@ class TestGenerators(FileSystemTest):
         self.assertFileListEqual(pt.nefs_with_jpg("td"), [])
 
 class TestMovers(FileSystemTest):
+    def get_arguments_list(self, mock, index):
+        return [args[index] for args in list(zip(*mock.call_args_list))[0]]
+
+    @mock.patch('os.rmdir')
     @mock.patch('os.path.isfile', return_value=False)
     @mock.patch('os.makedirs')
     @mock.patch('shutil.move')
-    def test_move(self, mock_move, mock_makedirs, mock_isfile):
+    def test_move(self, mock_move, mock_makedirs, mock_isfile, mock_rmdir):
         import os
         pt.move(pt.all, "td/plain", "new/td", format='%Y/%B')
-
-        move_args = list(zip(*mock_move.call_args_list))[0]
-        dirs_args = [args[0] for args in list(zip(*mock_makedirs.call_args_list))[0]]
 
         new_files = [
             'new/td/2013/August/chess.jpg',
@@ -115,15 +116,18 @@ class TestMovers(FileSystemTest):
         ]
         new_dirs = [os.path.dirname(x) for x in new_files]
         
-        self.assertFileListEqual([args[0] for args in move_args], self.all_files)
-        self.assertEqual([args[1] for args in move_args], new_files)
-        self.assertEqual(dirs_args, new_dirs)
+        self.assertFileListEqual(self.get_arguments_list(mock_move, 0), self.all_files)
+        self.assertEqual(self.get_arguments_list(mock_move, 1), new_files)
+        self.assertEqual(self.get_arguments_list(mock_makedirs, 0), new_dirs)
+        self.assertFileListEqual(self.get_arguments_list(mock_rmdir, 0), ['td/plain/empty'])
 
+    @mock.patch('os.rmdir')
     @mock.patch('os.path.isfile', return_value=True)
     @mock.patch('os.makedirs')
     @mock.patch('shutil.move')
-    def test_move_nothing(self, mock_move, mock_makedirs, mock_isfile):
+    def test_move_nothing(self, mock_move, mock_makedirs, mock_isfile, mock_rmdir):
         pt.move(pt.all, "td/plain", "new/td")
 
         self.assertFalse(mock_makedirs.call_args_list)
         self.assertFalse(mock_move.call_args_list)
+        self.assertFileListEqual(self.get_arguments_list(mock_rmdir, 0), ['td/plain/empty'])

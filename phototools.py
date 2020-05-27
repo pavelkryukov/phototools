@@ -214,6 +214,18 @@ def takes(factor):
 # "2010/09 September"
 # If file exists already, it is skipped
 def move(generator, src_path, dst_path, format='%Y/%m %B'):
+    def remove_empty_dirs(path):
+        if not os.path.isdir(path):
+            return
+
+        for f in os.listdir(path):
+            fullpath = os.path.join(path, f)
+            if os.path.isdir(fullpath):
+                remove_empty_dirs(fullpath)
+
+        if len(os.listdir(path)) == 0:
+            os.rmdir(path)
+
     for src in generator(src_path):
         subfolder = get_date(src).strftime(format)
         dst = "{}/{}/{}".format(dst_path, subfolder, os.path.basename(src))
@@ -225,3 +237,5 @@ def move(generator, src_path, dst_path, format='%Y/%m %B'):
                 shutil.move(src, dst)
         except OSError:
             print ("Could not move {} to {}".format(src, dst))
+
+    remove_empty_dirs(src_path)
