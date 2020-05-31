@@ -244,6 +244,9 @@ def move(generator, src_path, dst_path, format='%Y/%m %B'):
  
         return result  
 
+    if not os.path.isdir(src_path):
+        raise FileNotFoundError(src_path)
+
     for src in generator(src_path):
         subfolder = get_date(src).strftime(format)
         dst = "{}/{}/{}".format(dst_path, subfolder, os.path.basename(src))

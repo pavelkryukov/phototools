@@ -139,3 +139,7 @@ class TestMovers(FileSystemTest):
         self.assertFalse(mock_makedirs.call_args_list)
         self.assertFalse(mock_move.call_args_list)
         self.assertFileListEqual(self.get_arguments_list(mock_removedirs, 0), ['td/plain/empty', 'td/plain/empty_dir'])
+
+    def test_move_non_a_folder(self):
+        with self.assertRaises(FileNotFoundError):
+            pt.move(pt.all, "not_exists", "new/td")
