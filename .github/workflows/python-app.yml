@@ -34,5 +34,6 @@ jobs:
     - name: Test with coverage
       run: |
         coverage run -m unittest -b
+        coverage xml
     - name: Codecov
       uses: codecov/codecov-action@v1.0.7
