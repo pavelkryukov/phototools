@@ -127,7 +127,7 @@ class TestMovers(FileSystemTest):
         self.assertFileListEqual(self.get_arguments_list(mock_move, 0), self.all_files)
         self.assertEqual(self.get_arguments_list(mock_move, 1), new_files)
         self.assertEqual(self.get_arguments_list(mock_makedirs, 0), new_dirs)
-        self.assertFileListEqual(self.get_arguments_list(mock_removedirs, 0), ['td/plain/empty', 'td/plain/empty_dir'])
+        self.assertFileListEqual(sorted(self.get_arguments_list(mock_removedirs, 0)), ['td/plain/empty', 'td/plain/empty_dir'])
 
     @mock.patch('os.removedirs')
     @mock.patch('os.path.isfile', return_value=True)
@@ -138,7 +138,7 @@ class TestMovers(FileSystemTest):
 
         self.assertFalse(mock_makedirs.call_args_list)
         self.assertFalse(mock_move.call_args_list)
-        self.assertFileListEqual(self.get_arguments_list(mock_removedirs, 0), ['td/plain/empty', 'td/plain/empty_dir'])
+        self.assertFileListEqual(sorted(self.get_arguments_list(mock_removedirs, 0)), ['td/plain/empty', 'td/plain/empty_dir'])
 
     def test_move_non_a_folder(self):
         with self.assertRaises(FileNotFoundError):
