@@ -188,9 +188,9 @@ def instagram(src_path):
 def takes(factor):
     def takes_impl(path, factor):
         is_first = True
+        current_hash = None
+        current_date = None
         for pic in all(path):
-            current_hash = None
-            current_date = None
             new_hash = get_imagehash(pic)
             new_date = get_date(pic)
             if is_first or time_diff(new_date, current_date) > 180 or current_hash - new_hash > factor:
