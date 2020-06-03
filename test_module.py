@@ -77,6 +77,11 @@ class TestAttributes(FileSystemTest):
         self.assertEqual(pt.time_diff(time2, time1), 0)
         self.assertEqual(pt.time_diff(time3, time1), 1)
 
+    def test_time_diff_different_formats(self):
+        orf_time = pt.get_date("td/takes/zanaves.orf")
+        jpg_time = pt.get_date("td/takes/zanaves.jpg")
+        self.assertEqual(orf_time, jpg_time)
+
     def test_panorama(self):
         self.assertTrue(pt.is_panorama("td/panorama/left.jpg", "td/panorama/right.jpg"))
         self.assertFalse(pt.is_panorama("td/panorama/right.jpg", "td/panorama/right.jpg"))
