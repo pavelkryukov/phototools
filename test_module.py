@@ -102,7 +102,7 @@ class TestGenerators(FileSystemTest):
         self.assertFileListEqual(pt.instagram("td"), ["td/panorama/left.jpg", "td/panorama/right.jpg", "td/plain/chess.jpg"])
 
     def test_nefs_with_jpg(self):
-        self.assertFileListEqual(pt.nefs_with_jpg("td"), [])
+        self.assertFileListEqual(pt.nefs_with_jpg("td"), ["td/takes/zanaves.jpg", "td/takes/zanaves.orf"])
 
 class TestMovers(FileSystemTest):
     def get_arguments_list(self, mock, index):

@@ -127,6 +127,10 @@ def all(path):
     yield from jpegs(path)
     yield from raws(path)
 
+def all_hashable(path):
+    yield from jpegs(path)
+    yield from sorted(get_all_by_extensions(['nef'], path))
+
 # Checks if directory has duplicate files
 # Compares only datestamp and SHA, ignores content
 # (i.e. ignores photoshoot series)
@@ -190,7 +194,7 @@ def takes(factor):
         is_first = True
         current_hash = None
         current_date = None
-        for pic in all(path):
+        for pic in all_hashable(path):
             new_hash = get_imagehash(pic)
             new_date = get_date(pic)
             if is_first or time_diff(new_date, current_date) > 180 or current_hash - new_hash > factor:
