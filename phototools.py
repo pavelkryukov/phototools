@@ -22,20 +22,20 @@
 
 import datetime
 import glob
-import pyexiv2
 import hashlib
 import imagehash
 import os
 import PIL.Image
+import pyexiv2
 import shutil
 import time
 
-### ATTRIBUTE GETTERS
+# ATTRIBUTE GETTERS
 
 def get_sha256sum(pic):
     h = hashlib.sha256()
     with open(pic, 'rb', buffering=0) as f:
-        for b in iter(lambda : f.read(128*1024), b''):
+        for b in iter(lambda: f.read(128*1024), b''):
             h.update(b)
     return h.hexdigest()
 
@@ -48,7 +48,7 @@ def get_exif(pic, index):
 
             exif = img._getexif()
             if exif is None:
-                print ("Exif is None for {}".format(pic))
+                print("Exif is None for {}".format(pic))
                 return None
             else:
                 return exif.get(index)
@@ -61,7 +61,7 @@ def get_imagehash(pic):
         with PIL.Image.open(pic) as img:
             return imagehash.dhash(img)
     except IOError:
-        print ("Could not open {}".format(pic))
+        print("Could not open {}".format(pic))
         return None
 
 def get_date(pic):
@@ -94,7 +94,7 @@ def get_date(pic):
         return get_creation_date(pic)
 
     return datetime.datetime.strptime(exif, '%Y:%m:%d %H:%M:%S')
-    
+
 def time_diff(date1, date2):
     return (date1 - date2).total_seconds()
 
@@ -106,7 +106,7 @@ def is_panorama(left_name, right_name):
     with PIL.Image.open(left_name) as left:
         with PIL.Image.open(right_name) as right:
             (width, height) = left.size
-            if height != right.size[1]: # Different height
+            if height != right.size[1]:  # Different height
                 return False
 
             edges = [(left.getpixel((width - 1, i)), right.getpixel((0, i))) for i in range(height)]
@@ -114,7 +114,7 @@ def is_panorama(left_name, right_name):
 
             return (sum(metric) / height) < 256
 
-### GENERATORS
+# GENERATORS
 
 def get_all_by_extensions(exts, path):
     for ext in exts:
@@ -166,13 +166,13 @@ def duplicates_only_hash(src_path):
 # JPG files faster; one archived, they are not
 # really needed. This tool helps to filter them out.
 def nefs_with_jpg(src_path):
-    jpegs_cache = { }
+    jpegs_cache = {}
     for raw in raws(src_path):
         date = get_date(raw)
         move_raw = False
 
         directory = os.path.dirname(raw)
-        if not directory in jpegs_cache:
+        if directory not in jpegs_cache:
             jpegs_cache[directory] = [(i, get_date(i)) for i in jpegs(directory)]
 
         for (jpeg, jpeg_date) in jpegs_cache[directory]:
@@ -218,43 +218,43 @@ def takes(factor):
 
     return lambda path: takes_impl(path, factor)
 
-### MOVING CODE 
+# MOVING CODE
+
+def get_empty_dirs(path):
+    result = []
+    is_empty = True
+    for f in os.listdir(path):
+        subdir = os.path.join(path, f)
+
+        # Has a file, therefore not empty
+        if not os.path.isdir(subdir):
+            is_empty = False
+            continue
+
+        d = get_empty_dirs(subdir)
+
+        # If subdirectory has files
+        # ‘d' would be an empty list
+        # or a list of subsubdirectories;
+        # but not a subdirectory name
+        if not subdir in d:
+            is_empty = False
+
+        result.extend(d)
+
+    # The directory does not have files
+    # and all subdirectories do not,
+    # so just remove the directory
+    if is_empty:
+        return [path]
+
+    return result  
 
 # Moves generated files to the storage
 # The storage will have hiearachied folders like:
 # "2010/09 September"
 # If file exists already, it is skipped
 def move(generator, src_path, dst_path, format='%Y/%m %B'):
-    def get_empty_dirs(path):
-        result = []
-        is_empty = True
-        for f in os.listdir(path):
-            subdir = os.path.join(path, f)
-            
-            # Has a file, therefore not empty
-            if not os.path.isdir(subdir):
-                is_empty = False
-                continue
-
-            d = get_empty_dirs(subdir)
-
-            # If subdirectory has files
-            # ‘d' would be an empty list
-            # or a list of subsubdirectories;
-            # but not a subdirectory name
-            if not subdir in d:
-                is_empty = False
-
-            result.extend(d)
-
-        # The directory does not have files
-        # and all subdirectories do not,
-        # so just remove the directory
-        if is_empty:
-            return [path]
- 
-        return result  
-
     if not os.path.isdir(src_path):
         raise FileNotFoundError(src_path)
 

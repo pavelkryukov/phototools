@@ -24,6 +24,7 @@ import unittest
 import phototools as pt
 from unittest import mock
 
+
 class FileSystemTest(unittest.TestCase):
     def setUp(self):
         self.all_files = [
@@ -58,17 +59,18 @@ class FileSystemTest(unittest.TestCase):
             self.assertFalse(b is None, '{} has no match'.format(a))
             self.assertTrue(os.path.samefile(a, b), '{} and {} are different files'.format(a, b))
 
+
 class TestAttributes(FileSystemTest):
     def test_get_imagehash(self):
         self.assertIsNone(pt.get_imagehash("td/not_an_image.txt"))
 #       self.assertIsNotNone(pt.get_imagehash("td/plain/nuthatch.orf"))
 
     def test_date(self):
-        self.assertEqual(pt.get_date("td/plain/chess.jpg").strftime("%Y %B"), "2013 August")
-        self.assertEqual(pt.get_date("td/plain/jewel2.jpg").strftime("%Y %B"), "2016 November")
-        self.assertEqual(pt.get_date("td/plain/balloon.nef").strftime("%Y %B"), "2016 November")
-        self.assertEqual(pt.get_date("td/plain/nuthatch.orf").strftime("%Y %B"),"2019 October")
-        
+        self.assertEqual(pt.get_date("td/plain/chess.jpg").strftime("%Y %B"),    "2013 August")
+        self.assertEqual(pt.get_date("td/plain/jewel2.jpg").strftime("%Y %B"),   "2016 November")
+        self.assertEqual(pt.get_date("td/plain/balloon.nef").strftime("%Y %B"),  "2016 November")
+        self.assertEqual(pt.get_date("td/plain/nuthatch.orf").strftime("%Y %B"), "2019 October")
+
     def test_time_diff(self):
         time1 = pt.get_date("td/takes/jewel1.jpg")
         time2 = pt.get_date("td/plain/jewel2.jpg")
@@ -109,6 +111,7 @@ class TestGenerators(FileSystemTest):
     def test_nefs_with_jpg(self):
         self.assertFileListEqual(pt.nefs_with_jpg("td"), ["td/takes/zanaves.jpg", "td/takes/zanaves.orf"])
 
+
 class TestMovers(FileSystemTest):
     def get_arguments_list(self, mock, index):
         return [args[index] for args in list(zip(*mock.call_args_list))[0]]
@@ -128,7 +131,7 @@ class TestMovers(FileSystemTest):
             'new/td/2019/October/nuthatch.orf'
         ]
         new_dirs = [os.path.dirname(x) for x in new_files]
-        
+
         self.assertFileListEqual(self.get_arguments_list(mock_move, 0), self.all_files)
         self.assertEqual(self.get_arguments_list(mock_move, 1), new_files)
         self.assertEqual(self.get_arguments_list(mock_makedirs, 0), new_dirs)
