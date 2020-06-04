@@ -1,4 +1,4 @@
-![Python application](https://github.com/pavelkryukov/phototools/workflows/Python%20application/badge.svg)
+[![Python application](https://github.com/pavelkryukov/phototools/workflows/Python%20application/badge.svg)](https://github.com/pavelkryukov/phototools/actions)
 [![codecov](https://codecov.io/gh/pavelkryukov/phototools/branch/master/graph/badge.svg)](https://codecov.io/gh/pavelkryukov/phototools)
 [![Total alerts](https://img.shields.io/lgtm/alerts/g/pavelkryukov/phototools.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/pavelkryukov/phototools/alerts/)
 
