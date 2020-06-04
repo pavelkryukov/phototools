@@ -30,7 +30,9 @@ import pyexiv2
 import shutil
 import time
 
+
 # ATTRIBUTE GETTERS
+
 
 def get_sha256sum(pic):
     h = hashlib.sha256()
@@ -38,6 +40,7 @@ def get_sha256sum(pic):
         for b in iter(lambda: f.read(128*1024), b''):
             h.update(b)
     return h.hexdigest()
+
 
 # Returns EXIF metadata
 def get_exif(pic, index):
@@ -55,6 +58,7 @@ def get_exif(pic, index):
     except IOError:
         return None
 
+
 # Returns imagehash (see https://pypi.org/project/ImageHash/)
 def get_imagehash(pic):
     try:
@@ -63,6 +67,7 @@ def get_imagehash(pic):
     except IOError:
         print("Could not open {}".format(pic))
         return None
+
 
 def get_date(pic):
     # Returns NEF datestamp
@@ -95,8 +100,10 @@ def get_date(pic):
 
     return datetime.datetime.strptime(exif, '%Y:%m:%d %H:%M:%S')
 
+
 def time_diff(date1, date2):
     return (date1 - date2).total_seconds()
+
 
 # Returns true if two images are likely to be a part of carousel panorama
 def is_panorama(left_name, right_name):
@@ -114,27 +121,34 @@ def is_panorama(left_name, right_name):
 
             return (sum(metric) / height) < 256
 
+
 # GENERATORS
+
 
 def get_all_by_extensions(exts, path):
     for ext in exts:
         yield from glob.iglob('{}/**/*.{}'.format(path, ext), recursive=True)
 
+
 # Returns global paths to all *.jpg files in directory
 def jpegs(path):
     return sorted(get_all_by_extensions(['jpg', 'jpeg', 'jpe'], path))
+
 
 # Returns global paths to all raw files in directory
 def raws(path):
     return sorted(get_all_by_extensions(['nef', 'orf'], path))
 
+
 def all(path):
     yield from jpegs(path)
     yield from raws(path)
 
+
 def all_hashable(path):
     yield from jpegs(path)
     yield from sorted(get_all_by_extensions(['nef'], path))
+
 
 # Checks if directory has duplicate files
 # Compares only datestamp and SHA, ignores content
@@ -149,6 +163,7 @@ def duplicates(src_path):
         else:
             results[d] = pic
 
+
 # Checks if directory has duplicate files
 # Compares only SHA, so works slower but more accurately
 def duplicates_only_hash(src_path):
@@ -159,6 +174,7 @@ def duplicates_only_hash(src_path):
             yield pic
         else:
             results.add(d)
+
 
 # Move all raw files which have JPG files
 # taken in the same second together with JPG files.
@@ -183,12 +199,14 @@ def nefs_with_jpg(src_path):
         if move_raw:
             yield raw
 
+
 # Returns whether pic is saved by Instagram or not
 def instagram(src_path):
     for pic in jpegs(src_path):
         data = get_exif(pic, 305)
         if isinstance(data, str) and "Instagram" in data:
             yield pic
+
 
 # Returns all photos which are considered as "takes"
 # A "take" is a photo which is very close to the previous one
@@ -218,7 +236,9 @@ def takes(factor):
 
     return lambda path: takes_impl(path, factor)
 
+
 # MOVING CODE
+
 
 def get_empty_dirs(path):
     result = []
@@ -248,7 +268,8 @@ def get_empty_dirs(path):
     if is_empty:
         return [path]
 
-    return result  
+    return result
+
 
 # Moves generated files to the storage
 # The storage will have hiearachied folders like:
@@ -263,13 +284,12 @@ def move(generator, src_path, dst_path, format='%Y/%m %B'):
         dst = "{}/{}/{}".format(dst_path, subfolder, os.path.basename(src))
         try:
             if os.path.isfile(dst):
-                print ('Skip ' + src + ', ' + dst + ' exists')
+                print('Skip ' + src + ', ' + dst + ' exists')
             else:
                 os.makedirs(os.path.dirname(dst), exist_ok=True)
                 shutil.move(src, dst)
         except OSError:
-            print ("Could not move {} to {}".format(src, dst))
+            print("Could not move {} to {}".format(src, dst))
 
     for d in get_empty_dirs(src_path):
         os.removedirs(d)
-
