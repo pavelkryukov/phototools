@@ -22,6 +22,7 @@
 
 import datetime
 import glob
+import pyexiv2
 import hashlib
 import imagehash
 import os
@@ -78,11 +79,15 @@ def get_date(pic):
         ctime = time.ctime(os.path.getmtime(file))
         return datetime.datetime.strptime(ctime, "%a %b %d %H:%M:%S %Y")
 
+    def get_orf_date(file):
+        with pyexiv2.Image(file) as img:
+            return datetime.datetime.strptime(img.read_exif()['Exif.Photo.DateTimeOriginal'], '%Y:%m:%d %H:%M:%S')
+
     if pic.lower().endswith('.nef'):
         return get_nef_date(pic)
 
     if pic.lower().endswith('.orf'):
-        return get_creation_date(pic)
+        return get_orf_date(pic)
 
     exif = get_exif(pic, 36867)
     if exif is None:
