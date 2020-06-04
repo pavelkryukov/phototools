@@ -34,7 +34,6 @@ import time
 
 # ATTRIBUTE GETTERS
 
-
 def get_sha256sum(pic):
     h = hashlib.sha256()
     with open(pic, 'rb', buffering=0) as f:
@@ -75,6 +74,9 @@ def get_imagehash(pic):
 
 
 def get_date(pic):
+    EXIF_DATE_FORMAT = '%Y:%m:%d %H:%M:%S'
+    OS_DATE_FORMAT = "%a %b %d %H:%M:%S %Y"
+
     # Returns NEF datestamp
     # Taken from
     # https://pascalbrokmeier.de/2018-01-24/2018-01-24-Getting_the_capture_date_in_a_nef_Nikon_raw_file_with_python/
@@ -82,16 +84,16 @@ def get_date(pic):
         with open(pic, 'rb') as raw_chunk:
             raw_chunk.seek(2964)
             capture_date_bin = raw_chunk.read(19)
-            return datetime.datetime.strptime(str(capture_date_bin)[2:-1], '%Y:%m:%d %H:%M:%S')
+            return datetime.datetime.strptime(str(capture_date_bin)[2:-1], EXIF_DATE_FORMAT)
 
     # Returns creation year
     def get_creation_date(file):
         ctime = time.ctime(os.path.getmtime(file))
-        return datetime.datetime.strptime(ctime, "%a %b %d %H:%M:%S %Y")
+        return datetime.datetime.strptime(ctime, OS_DATE_FORMAT)
 
     def get_orf_date(file):
         with pyexiv2.Image(file) as img:
-            return datetime.datetime.strptime(img.read_exif()['Exif.Photo.DateTimeOriginal'], '%Y:%m:%d %H:%M:%S')
+            return datetime.datetime.strptime(img.read_exif()['Exif.Photo.DateTimeOriginal'], EXIF_DATE_FORMAT)
 
     if pic.lower().endswith('.nef'):
         return get_nef_date(pic)
@@ -103,7 +105,7 @@ def get_date(pic):
     if exif is None:
         return get_creation_date(pic)
 
-    return datetime.datetime.strptime(exif, '%Y:%m:%d %H:%M:%S')
+    return datetime.datetime.strptime(exif, EXIF_DATE_FORMAT)
 
 
 def time_diff(date1, date2):
