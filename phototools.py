@@ -257,7 +257,7 @@ def get_empty_dirs(path):
         # ‘d' would be an empty list
         # or a list of subsubdirectories;
         # but not a subdirectory name
-        if not subdir in d:
+        if subdir not in d:
             is_empty = False
 
         result.extend(d)

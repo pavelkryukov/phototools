@@ -91,6 +91,7 @@ class TestAttributes(FileSystemTest):
         self.assertFalse(pt.is_panorama("td/panorama/left.jpg", None))
         self.assertFalse(pt.is_panorama("td/panorama/left.jpg", "td/plain/jewel2.jpg"))
 
+
 class TestGenerators(FileSystemTest):
     def test_simple(self):
         self.assertFileListEqual(pt.raws("td/plain"),  ["td/plain/balloon.nef", "td/plain/nuthatch.orf"])
