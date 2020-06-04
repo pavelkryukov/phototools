@@ -63,7 +63,7 @@ class FileSystemTest(unittest.TestCase):
 class TestAttributes(FileSystemTest):
     def test_get_imagehash(self):
         self.assertIsNone(pt.get_imagehash("td/not_an_image.txt"))
-#       self.assertIsNotNone(pt.get_imagehash("td/plain/nuthatch.orf"))
+        self.assertTrue(pt.get_imagehash("td/takes/zanaves.orf") - pt.get_imagehash("td/takes/zanaves.jpg"), 4)
 
     def test_date(self):
         self.assertEqual(pt.get_date("td/plain/chess.jpg").strftime("%Y %B"),    "2013 August")

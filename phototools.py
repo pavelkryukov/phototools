@@ -27,6 +27,7 @@ import imagehash
 import os
 import PIL.Image
 import pyexiv2
+import rawpy
 import shutil
 import time
 
@@ -62,6 +63,10 @@ def get_exif(pic, index):
 # Returns imagehash (see https://pypi.org/project/ImageHash/)
 def get_imagehash(pic):
     try:
+        if pic.lower().endswith('.orf'):
+            with rawpy.imread(pic) as raw:
+                return imagehash.dhash(PIL.Image.fromarray(raw.postprocess()))
+
         with PIL.Image.open(pic) as img:
             return imagehash.dhash(img)
     except IOError:
